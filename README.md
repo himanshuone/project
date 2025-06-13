@@ -41,10 +41,18 @@ A modern, minimalist study timer application built with Next.js, React, and Fire
 - Smooth animations with Framer Motion
 - Glassmorphism effects with backdrop blur
 
+### 🎯 New Features Added
+- **Random Motivation Codes**: Generate unique alphanumeric codes for inspiration (e.g., "FOCUS2024XQWIN")
+- **Enhanced Background Support**: Added YouTube video backgrounds for study-friendly ambient content
+- **Persistent Hour Tracking**: Timer now always continues from where you left off after login
+- **Enhanced UI**: Added motivation code display with styling and controls
+
 ### ⌨️ Keyboard Shortcuts
 - `Space` - Start/Pause timer
 - `R` - Reset timer (when not running)
 - `Q` - Get new motivational quote
+- `C` - Generate new motivation code
+- `B` - Toggle background mode (Video → YouTube → Images)
 
 ## Tech Stack
 

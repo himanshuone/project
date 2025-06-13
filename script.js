@@ -7,14 +7,29 @@ let timer = {
 };
 
 let user = null;
-let currentBackgroundMode = 'video'; // 'video' or 'image'
+let currentBackgroundMode = 'video'; // 'video', 'youtube', or 'image'
 let currentBackgroundIndex = 0;
+let currentMotivationCode = '';
 
 // Background videos and images
 const backgroundVideos = [
     'https://cdn.pixabay.com/vimeo/460080940/clouds.mp4?width=1280&hash=92d83ed7bc51b325cfe6e97c6f7c4b7d3b3e0c7b',
     'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
     'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
+];
+
+// YouTube video backgrounds (embedded) - Study-friendly ambient videos
+const youtubeVideos = [
+    'jfKfPfyJRdk', // Lofi Hip Hop Radio
+    '5qap5aO4i9A', // Relaxing Piano Music
+    'lP26UCnoH9s', // Forest Sounds
+    'WPni755-Krg', // Rain Sounds
+    'nDq6TstdEi8', // Ocean Waves
+    'YQQ2StSwg5o', // Fireplace Sounds
+    'McVL4M8x3N0', // Study Music
+    'dv3kcKAdy54', // Coffee Shop Ambience
+    'DIx3aMRDUL4', // Library Ambience
+    'tNkZsRW7h2c'  // Nature Sounds
 ];
 
 const backgroundImages = [
@@ -47,6 +62,25 @@ const motivationalQuotes = [
     { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" }
 ];
 
+// Motivation codes - random alphanumeric codes with inspirational meanings
+const motivationCodeTemplates = [
+    { prefix: 'FOCUS', suffix: 'WIN' },
+    { prefix: 'STUDY', suffix: 'HARD' },
+    { prefix: 'LEARN', suffix: 'GROW' },
+    { prefix: 'PUSH', suffix: 'LIMITS' },
+    { prefix: 'NEVER', suffix: 'QUIT' },
+    { prefix: 'AIM', suffix: 'HIGH' },
+    { prefix: 'STAY', suffix: 'STRONG' },
+    { prefix: 'WORK', suffix: 'SMART' },
+    { prefix: 'DREAM', suffix: 'BIG' },
+    { prefix: 'RISE', suffix: 'UP' },
+    { prefix: 'BREAK', suffix: 'LIMITS' },
+    { prefix: 'UNLOCK', suffix: 'POTENTIAL' },
+    { prefix: 'MASTER', suffix: 'SKILLS' },
+    { prefix: 'ACHIEVE', suffix: 'GOALS' },
+    { prefix: 'EXCEL', suffix: 'BEYOND' }
+];
+
 // DOM elements
 const loginContainer = document.getElementById('loginContainer');
 const appContainer = document.getElementById('appContainer');
@@ -68,12 +102,15 @@ const sessionCount = document.getElementById('sessionCount');
 const averageSession = document.getElementById('averageSession');
 const backgroundVideo = document.getElementById('backgroundVideo');
 const imageBackground = document.getElementById('imageBackground');
+const motivationCodeDisplay = document.getElementById('motivationCode');
+const newCodeBtn = document.getElementById('newCodeBtn');
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', function() {
     initializeBackgrounds();
     loadStoredUser();
     displayRandomQuote();
+    generateRandomMotivationCode();
     
     // Event listeners
     startPauseBtn.addEventListener('click', toggleTimer);
@@ -81,12 +118,18 @@ document.addEventListener('DOMContentLoaded', function() {
     logoutBtn.addEventListener('click', logout);
     backgroundToggle.addEventListener('click', toggleBackground);
     newQuoteBtn.addEventListener('click', displayRandomQuote);
+    if (newCodeBtn) {
+        newCodeBtn.addEventListener('click', generateRandomMotivationCode);
+    }
     
     // Auto-save timer state every 5 seconds
     setInterval(saveTimerState, 5000);
     
     // Change background every 5 minutes
     setInterval(changeBackground, 300000);
+    
+    // Generate new motivation code every 10 minutes
+    setInterval(generateRandomMotivationCode, 600000);
 });
 
 // Google Sign-In callback
@@ -121,6 +164,15 @@ function loginAsDemo() {
 
 // Initialize backgrounds
 function initializeBackgrounds() {
+    // Create YouTube background container if not exists
+    if (!document.getElementById('youtubeBackground')) {
+        const youtubeContainer = document.createElement('div');
+        youtubeContainer.id = 'youtubeBackground';
+        youtubeContainer.className = 'youtube-background';
+        youtubeContainer.style.display = 'none';
+        document.body.appendChild(youtubeContainer);
+    }
+    
     // Set initial video background with error handling
     backgroundVideo.src = backgroundVideos[0];
     backgroundVideo.onerror = function() {
@@ -142,28 +194,58 @@ function initializeBackgrounds() {
 
 // Change background periodically
 function changeBackground() {
-    currentBackgroundIndex = (currentBackgroundIndex + 1) % 
-        (currentBackgroundMode === 'video' ? backgroundVideos.length : backgroundImages.length);
+    let maxLength;
+    switch (currentBackgroundMode) {
+        case 'video':
+            maxLength = backgroundVideos.length;
+            break;
+        case 'youtube':
+            maxLength = youtubeVideos.length;
+            break;
+        case 'image':
+            maxLength = backgroundImages.length;
+            break;
+        default:
+            maxLength = backgroundVideos.length;
+    }
+    
+    currentBackgroundIndex = (currentBackgroundIndex + 1) % maxLength;
     
     if (currentBackgroundMode === 'video') {
         backgroundVideo.src = backgroundVideos[currentBackgroundIndex];
+    } else if (currentBackgroundMode === 'youtube') {
+        loadYouTubeVideo(youtubeVideos[currentBackgroundIndex]);
     } else {
         imageBackground.style.backgroundImage = `url(${backgroundImages[currentBackgroundIndex]})`;
     }
 }
 
-// Toggle between video and image backgrounds
+// Toggle between video, youtube, and image backgrounds
 function toggleBackground() {
+    const youtubeContainer = document.getElementById('youtubeBackground');
+    
+    // Hide all backgrounds first
+    backgroundVideo.parentElement.style.display = 'none';
+    imageBackground.style.display = 'none';
+    if (youtubeContainer) {
+        youtubeContainer.style.display = 'none';
+    }
+    
     if (currentBackgroundMode === 'video') {
+        currentBackgroundMode = 'youtube';
+        if (youtubeContainer) {
+            youtubeContainer.style.display = 'block';
+            loadYouTubeVideo(youtubeVideos[currentBackgroundIndex]);
+        }
+        backgroundToggleText.textContent = 'Switch to Images';
+    } else if (currentBackgroundMode === 'youtube') {
         currentBackgroundMode = 'image';
-        backgroundVideo.parentElement.style.display = 'none';
         imageBackground.style.display = 'block';
         backgroundToggleText.textContent = 'Switch to Videos';
     } else {
         currentBackgroundMode = 'video';
         backgroundVideo.parentElement.style.display = 'block';
-        imageBackground.style.display = 'none';
-        backgroundToggleText.textContent = 'Switch to Images';
+        backgroundToggleText.textContent = 'Switch to YouTube';
     }
     
     localStorage.setItem('backgroundMode', currentBackgroundMode);
@@ -181,7 +263,31 @@ function loadStoredUser() {
     // Load background preference
     const backgroundMode = localStorage.getItem('backgroundMode');
     if (backgroundMode && backgroundMode !== currentBackgroundMode) {
-        toggleBackground();
+        // Set the background mode and initialize the display properly
+        const originalMode = currentBackgroundMode;
+        currentBackgroundMode = backgroundMode;
+        
+        // Show the correct background based on saved preference
+        const youtubeContainer = document.getElementById('youtubeBackground');
+        backgroundVideo.parentElement.style.display = 'none';
+        imageBackground.style.display = 'none';
+        if (youtubeContainer) {
+            youtubeContainer.style.display = 'none';
+        }
+        
+        if (currentBackgroundMode === 'video') {
+            backgroundVideo.parentElement.style.display = 'block';
+            backgroundToggleText.textContent = 'Switch to YouTube';
+        } else if (currentBackgroundMode === 'youtube') {
+            if (youtubeContainer) {
+                youtubeContainer.style.display = 'block';
+                loadYouTubeVideo(youtubeVideos[currentBackgroundIndex]);
+            }
+            backgroundToggleText.textContent = 'Switch to Images';
+        } else {
+            imageBackground.style.display = 'block';
+            backgroundToggleText.textContent = 'Switch to Videos';
+        }
     }
 }
 
@@ -450,6 +556,36 @@ function displayRandomQuote() {
     quoteAuthor.textContent = `- ${quote.author}`;
 }
 
+// Generate random motivation code
+function generateRandomMotivationCode() {
+    const template = motivationCodeTemplates[Math.floor(Math.random() * motivationCodeTemplates.length)];
+    const randomNum = Math.floor(Math.random() * 9999).toString().padStart(4, '0');
+    const randomLetters = Math.random().toString(36).substring(2, 4).toUpperCase();
+    
+    currentMotivationCode = `${template.prefix}${randomNum}${randomLetters}${template.suffix}`;
+    
+    if (motivationCodeDisplay) {
+        motivationCodeDisplay.textContent = currentMotivationCode;
+    }
+}
+
+// Load YouTube video
+function loadYouTubeVideo(videoId) {
+    const youtubeContainer = document.getElementById('youtubeBackground');
+    if (!youtubeContainer) return;
+    
+    youtubeContainer.innerHTML = `
+        <iframe 
+            src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1"
+            frameborder="0" 
+            allow="autoplay; encrypted-media" 
+            allowfullscreen
+            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;">
+        </iframe>
+        <div class="video-overlay"></div>
+    `;
+}
+
 // Logout function
 function logout() {
     // Save current session before logout
@@ -541,6 +677,12 @@ document.addEventListener('keydown', function(event) {
     if (event.code === 'KeyB' && !event.ctrlKey && !event.metaKey) {
         event.preventDefault();
         toggleBackground();
+    }
+    
+    // C key for new motivation code
+    if (event.code === 'KeyC' && !event.ctrlKey && !event.metaKey) {
+        event.preventDefault();
+        generateRandomMotivationCode();
     }
 });
 
