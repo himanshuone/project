@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Timer - Focus & Achieve</title>
+    <meta name="description" content="A beautiful study timer with Google login, motivational quotes, and dynamic backgrounds to help you focus and achieve your goals.">
+    <meta name="theme-color" content="#667eea">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23667eea'/%3E%3Cpath d='M50 20v30l20 10' stroke='white' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Google Sign-In -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+    <!-- Background Video Container -->
+    <div class="video-background">
+        <video id="backgroundVideo" autoplay muted loop>
+            <source src="" type="video/mp4">
+        </video>
+        <div class="video-overlay"></div>
+    </div>
+
+    <!-- Background Image Container -->
+    <div class="image-background" id="imageBackground"></div>
+
+    <!-- Login Section -->
+    <div class="login-container" id="loginContainer">
+        <div class="login-card">
+            <h1>Study Timer</h1>
+            <p class="subtitle">Track your study sessions and stay motivated</p>
+            <div class="login-notice">
+                <p><strong>Note:</strong> To use Google Sign-In, you need to configure your Google OAuth Client ID in the HTML file. See README.md for setup instructions.</p>
+            </div>
+            <div id="g_id_onload"
+                 data-client_id="YOUR_GOOGLE_CLIENT_ID"
+                 data-context="signin"
+                 data-ux_mode="popup"
+                 data-callback="handleCredentialResponse"
+                 data-auto_prompt="false">
+            </div>
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-shape="rectangular"
+                 data-theme="outline"
+                 data-text="signin_with"
+                 data-size="large"
+                 data-logo_alignment="left">
+            </div>
+            <div class="demo-login" id="demoLogin">
+                <p>Or try the demo version:</p>
+                <button class="btn btn-primary" onclick="loginAsDemo()">Demo Login</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div class="app-container" id="appContainer" style="display: none;">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="user-info">
+                <img id="userAvatar" src="" alt="User Avatar" class="user-avatar">
+                <span id="userName" class="user-name"></span>
+            </div>
+            <div class="header-controls">
+                <button class="btn btn-secondary" id="backgroundToggle">
+                    <span id="backgroundToggleText">Switch to Images</span>
+                </button>
+                <button class="btn btn-danger" id="logoutBtn">Logout</button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Timer Section -->
+            <div class="timer-section">
+                <div class="timer-display">
+                    <div class="time-display" id="timeDisplay">00:00:00</div>
+                    <div class="session-info">
+                        <p>Today's Study Time: <span id="todayTime">00:00:00</span></p>
+                        <p>Total Study Time: <span id="totalTime">00:00:00</span></p>
+                    </div>
+                </div>
+                
+                <div class="timer-controls">
+                    <button class="btn btn-primary btn-large" id="startPauseBtn">Start</button>
+                    <button class="btn btn-secondary" id="resetBtn">Reset</button>
+                </div>
+            </div>
+
+            <!-- Motivation Section -->
+            <div class="motivation-section">
+                <div class="quote-container">
+                    <p class="quote" id="motivationQuote">
+                        "The expert in anything was once a beginner."
+                    </p>
+                    <p class="quote-author" id="quoteAuthor">- Helen Hayes</p>
+                </div>
+                <button class="btn btn-outline" id="newQuoteBtn">New Quote</button>
+            </div>
+
+            <!-- Statistics Section -->
+            <div class="stats-section">
+                <h3>Study Statistics</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="streakCount">0</div>
+                        <div class="stat-label">Day Streak</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="sessionCount">0</div>
+                        <div class="stat-label">Sessions Today</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="averageSession">0</div>
+                        <div class="stat-label">Avg. Session (min)</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Keyboard Shortcuts Help -->
+        <div class="shortcuts-help">
+            <h4>Keyboard Shortcuts</h4>
+            <p><strong>Space</strong> - Start/Pause timer</p>
+            <p><strong>R</strong> - Reset timer</p>
+            <p><strong>Q</strong> - New quote</p>
+            <p><strong>B</strong> - Toggle background</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
