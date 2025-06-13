@@ -1,136 +1,236 @@
 # Study Timer - Focus & Achieve
 
-A beautiful, feature-rich study timer web application with Google authentication, motivational quotes, and dynamic backgrounds.
+A modern, minimalist study timer application built with Next.js, React, and Firebase. Track your study time, set goals, stay motivated, and achieve your learning objectives.
 
 ## Features
 
-- ⏱️ **Persistent Timer**: Study timer that remembers your progress even after closing the browser
-- 🔐 **Google Login**: Secure authentication using Google OAuth
-- 💪 **Motivational Quotes**: Random inspirational quotes to keep you motivated
-- 🎬 **Dynamic Backgrounds**: Switch between beautiful videos and images
-- 📊 **Study Statistics**: Track your study streaks, sessions, and average study time
-- 📱 **Responsive Design**: Works perfectly on desktop and mobile devices
-- 💾 **Local Storage**: All data is stored locally in your browser for privacy
+### 🔐 Authentication
+- Mandatory Google login using Firebase Authentication
+- User profile with anime avatar (randomly assigned based on user ID)
+- Secure user session management
+
+### ⏱️ Stopwatch Timer
+- Manual Start/Pause/Reset functionality
+- Persistent timer state across sessions using Firebase Firestore
+- Real-time tracking of daily and total study time
+- Session counting and statistics
+
+### 🎯 Goals Feature
+- Set daily or weekly study goals (in minutes/hours)
+- Visual progress tracking with animated progress bars
+- Goal achievement notifications
+- Flexible goal management
+
+### 🧠 Motivation Quotes
+- Random motivational quotes from external API (Quotable)
+- Fallback to curated quote collection
+- Refresh quotes on demand or automatically
+- Keyboard shortcut support
+
+### 🎥 Dynamic Background
+- Support for both image and video backgrounds
+- Auto-changing backgrounds every 5 minutes (configurable)
+- YouTube video embedding support
+- High-quality Unsplash images
+- User-configurable background preferences
+
+### 🎨 UI & Design
+- Minimalist, clean design with Tailwind CSS
+- Fully responsive layout for all devices
+- Dark/Light mode toggle with system preference detection
+- Smooth animations with Framer Motion
+- Glassmorphism effects with backdrop blur
+
+### ⌨️ Keyboard Shortcuts
+- `Space` - Start/Pause timer
+- `R` - Reset timer (when not running)
+- `Q` - Get new motivational quote
+
+## Tech Stack
+
+- **Frontend**: Next.js 15 with React 18
+- **Styling**: Tailwind CSS
+- **Animations**: Framer Motion
+- **Backend**: Firebase (Authentication + Firestore)
+- **Icons**: React Icons
+- **Font**: Inter (Google Fonts)
+- **TypeScript**: Full type safety
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── globals.css          # Global styles
+│   ├── layout.tsx           # Root layout with providers
+│   └── page.tsx             # Main page component
+├── components/
+│   ├── BackgroundManager.tsx # Dynamic background handling
+│   ├── Dashboard.tsx         # Main dashboard layout
+│   ├── Goals.tsx            # Goal setting and tracking
+│   ├── Header.tsx           # Navigation and user controls
+│   ├── LoginScreen.tsx      # Authentication screen
+│   ├── MotivationQuotes.tsx # Quote display and fetching
+│   └── StudyTimer.tsx       # Timer functionality
+├── contexts/
+│   ├── AuthContext.tsx      # Authentication state management
+│   ├── StudyTimerContext.tsx # Timer and Firestore integration
+│   └── ThemeContext.tsx     # Dark/light mode management
+├── hooks/
+│   ├── useAnimeAvatar.ts    # Avatar generation logic
+│   ├── useBackgroundManager.ts # Background switching
+│   └── useQuotes.ts         # Quote fetching and caching
+├── lib/
+│   └── firebase.ts          # Firebase configuration
+└── utils/
+    └── time.ts              # Time formatting utilities
+```
 
 ## Setup Instructions
 
-### 1. Get Google OAuth Credentials
+### 1. Clone the Repository
 
-1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select an existing one
-3. Enable the Google+ API
-4. Go to "Credentials" and create an OAuth 2.0 Client ID
-5. Add your domain to authorized origins (for local development, add `http://localhost:3000` or your preferred port)
-6. Copy the Client ID
-
-### 2. Configure the Application
-
-1. Open `index.html`
-2. Find the line with `data-client_id="YOUR_GOOGLE_CLIENT_ID"`
-3. Replace `YOUR_GOOGLE_CLIENT_ID` with your actual Google OAuth Client ID
-
-### 3. Run the Application
-
-Since this is a client-side application, you can run it using any static file server:
-
-#### Option 1: Using Python (if installed)
 ```bash
-# Python 3
-python -m http.server 3000
-
-# Python 2
-python -m SimpleHTTPServer 3000
+git clone <repository-url>
+cd study-timer-app
 ```
 
-#### Option 2: Using Node.js (if installed)
+### 2. Install Dependencies
+
 ```bash
-npx serve . -p 3000
+npm install
 ```
 
-#### Option 3: Using Live Server (VS Code Extension)
-1. Install the "Live Server" extension in VS Code
-2. Right-click on `index.html`
-3. Select "Open with Live Server"
+### 3. Firebase Setup
 
-### 4. Access the Application
+1. Create a new Firebase project at [Firebase Console](https://console.firebase.google.com/)
 
-Open your browser and navigate to `http://localhost:3000` (or your configured port)
+2. Enable Authentication:
+   - Go to Authentication → Sign-in method
+   - Enable Google sign-in provider
+   - Add your domain to authorized domains
 
-## How to Use
+3. Create Firestore Database:
+   - Go to Firestore Database
+   - Create database in production mode
+   - Set up security rules (see below)
 
-1. **Login**: Click the "Sign in with Google" button to authenticate
-2. **Start Studying**: Click the "Start" button to begin your study session
-3. **Pause/Resume**: Click "Pause" to take a break, then "Start" to resume
-4. **Reset**: Click "Reset" to start a new session
-5. **Background**: Toggle between video and image backgrounds using the button in the header
-6. **Quotes**: Click "New Quote" to get fresh motivation
-7. **Statistics**: View your study progress in the statistics section
+4. Get Firebase configuration:
+   - Go to Project Settings → General
+   - Scroll down to "Your apps" and click "Web"
+   - Copy the configuration object
 
-## Data Storage
+### 4. Environment Variables
 
-All your study data is stored locally in your browser using localStorage. This includes:
-- Current timer state
-- Daily study records
-- Study statistics
-- User preferences
+Create a `.env.local` file in the root directory:
 
-Your data is private and never leaves your device.
+```env
+NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key_here
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+```
+
+### 5. Firebase Security Rules
+
+Set up Firestore security rules:
+
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can only access their own data
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow access to user's subcollections
+      match /{document=**} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+  }
+}
+```
+
+### 6. Run the Development Server
+
+```bash
+npm run dev
+```
+
+Visit `http://localhost:3000` to see the application.
+
+## Deployment
+
+### Vercel (Recommended)
+
+1. Connect your GitHub repository to Vercel
+2. Add environment variables in Vercel dashboard
+3. Deploy automatically on push to main branch
+
+### Other Platforms
+
+The app can be deployed to any platform that supports Next.js:
+- Netlify
+- AWS Amplify
+- Railway
+- Render
+
+## Features in Detail
+
+### Timer Persistence
+The timer state is automatically saved to Firestore every 5 seconds, ensuring that users never lose their progress even if they close the browser or lose internet connection.
+
+### Goal System
+Users can set daily or weekly study goals. The system tracks progress in real-time and provides visual feedback through animated progress bars.
+
+### Background System
+The application supports two background modes:
+- **Images**: High-quality nature and study-focused images from Unsplash
+- **Videos**: YouTube video backgrounds with custom embed parameters
+
+### Quote System
+Motivational quotes are fetched from the Quotable API with a fallback system to ensure quotes are always available even when the API is down.
+
+### Responsive Design
+The application is fully responsive and works seamlessly across:
+- Desktop computers
+- Tablets
+- Mobile phones
+- Different screen orientations
 
 ## Customization
 
-### Adding New Backgrounds
+### Adding New Background Images
+Edit `src/hooks/useBackgroundManager.ts` and add URLs to the `backgroundImages` array.
 
-To add new background videos or images, edit the arrays in `script.js`:
-
-```javascript
-// Add new video URLs
-const backgroundVideos = [
-    'your-video-url-1.mp4',
-    'your-video-url-2.mp4',
-    // ... existing videos
-];
-
-// Add new image URLs
-const backgroundImages = [
-    'your-image-url-1.jpg',
-    'your-image-url-2.jpg',
-    // ... existing images
-];
-```
+### Adding New Background Videos
+Edit `src/hooks/useBackgroundManager.ts` and add YouTube embed URLs to the `backgroundVideos` array.
 
 ### Adding New Quotes
+Edit `src/hooks/useQuotes.ts` and add quotes to the `fallbackQuotes` array.
 
-To add new motivational quotes, edit the array in `script.js`:
-
-```javascript
-const motivationalQuotes = [
-    { text: "Your new quote here", author: "Author Name" },
-    // ... existing quotes
-];
-```
-
-## Browser Compatibility
-
-This application works on all modern browsers that support:
-- ES6+ JavaScript features
-- CSS Grid and Flexbox
-- Local Storage
-- HTML5 Video
-
-## Privacy
-
-- No data is sent to external servers except for Google authentication
-- All study data is stored locally in your browser
-- Background images/videos are loaded from external sources (Unsplash, Pixabay)
+### Changing Color Scheme
+Edit `tailwind.config.ts` to customize the color palette.
 
 ## Contributing
 
-Feel free to contribute by:
-- Adding new motivational quotes
-- Suggesting new background sources
-- Improving the UI/UX
-- Adding new features
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
 ## License
 
-This project is open source and available under the MIT License.
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Support
+
+If you encounter any issues or have questions, please open an issue on GitHub.
+
+---
+
+Built with ❤️ for students and learners everywhere.
